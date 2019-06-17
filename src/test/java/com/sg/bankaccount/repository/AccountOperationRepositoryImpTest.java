@@ -3,31 +3,28 @@ package com.sg.bankaccount.repository;
 import com.sg.bankaccount.Utils.PrintMessageUtilities;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.model.AccountHistory;
-import com.sg.bankaccount.model.OperationType;
-import com.sg.bankaccount.service.AccountOperationService;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.time.*;
 import java.util.*;
 
 import static com.sg.bankaccount.model.OperationType.DEPOSIT;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest
-public class AccountOperationRepositoryTest {
+public class AccountOperationRepositoryImpTest {
 
-    private AccountOperationRepository operationRepository;
+    private AccountOperationRepositoryImp operationRepository;
 
     @Before
     public void setUp() {
-        operationRepository = new AccountOperationRepository();
+        operationRepository = new AccountOperationRepositoryImp();
     }
 
     @Test
@@ -48,9 +45,9 @@ public class AccountOperationRepositoryTest {
 
         List<Account> accounts = asList(account1, account2);
 
-        Account account = operationRepository.findAccountById("234678");
+        Optional<Account> account = operationRepository.findById("234678");
 
-        Assert.assertEquals(account, accounts.get(0));
+        Assert.assertEquals(account.get(), accounts.get(0));
     }
 
 
@@ -67,7 +64,7 @@ public class AccountOperationRepositoryTest {
         account.setBalance(account.getBalance().add(BigDecimal.valueOf(1000)));
 
         AccountHistory accountHistory = AccountHistory.builder()
-                .account(operationRepository.findAccountById(account.getIdAccount()))
+                .account(operationRepository.findById(account.getIdAccount()).get())
                 .operationType(DEPOSIT)
                 .newBalance(account.getBalance())
                 .oldBalance(BigDecimal.valueOf(1000))

@@ -1,5 +1,7 @@
 package com.sg.bankaccount.service;
 
+import com.sg.bankaccount.exception.AccountNotFoundException;
+import com.sg.bankaccount.exception.IllegalParamException;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.model.AccountHistory;
 import com.sg.bankaccount.repository.AccountOperationRepository;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 import static com.sg.bankaccount.model.OperationType.DEPOSIT;
 import static com.sg.bankaccount.model.OperationType.WITHDRAW;
@@ -32,20 +33,25 @@ public class AccountOperationService {
     public List<Account> getAllAccount() {
 
         LOGGER.info("AccountOperationService - getAllAccount");
-        return operationRepository.findAllAccount();
+        return operationRepository.findAll();
     }
 
-    public Account findAccountById(String accountId) {
+    public Account findAccountById(String accountId) throws AccountNotFoundException {
 
-        LOGGER.info("AccountOperationService - findAccountById with accountId{}", accountId);
-        return operationRepository.findAccountById(accountId);
+        LOGGER.info("AccountOperationService - findById with accountId{}", accountId);
+        return operationRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     public Account makeOperationOnAccount(String accountId,
                                           BigDecimal amount,
-                                          int operationId) {
+                                          int operationId) throws AccountNotFoundException, IllegalParamException {
 
-        LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ", accountId, amount, operationId);
+        LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ",
+                accountId, amount, operationId);
+
+        checkAmountOperation(amount);
+
         if (DEPOSIT.getOperationId() == operationId)
             return depositOnAccount(accountId, amount);
 
@@ -55,43 +61,12 @@ public class AccountOperationService {
         return null;
     }
 
-    public Account depositOnAccount(String accountId,
-                                    BigDecimal amount) {
-
-        LOGGER.info("AccountOperationService - depositOnAccount with accountId{}, amount{} ", accountId, amount);
-        checkAmountOperation(amount);
-
-        Account account = operationRepository.findAccountById(accountId);
-        if (Objects.isNull(account))
-            return null;
-
-        BigDecimal oldAmount = account.getBalance();
-        account.setBalance(account.getBalance().add(amount));
-        operationRepository.createHistoryOperation(account, oldAmount, DEPOSIT);
-        return account;
-
-    }
-
-    public Account withdrawalOnAccount(String accountId,
-                                       BigDecimal amount) {
-
-        LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId{}, amount{} ", accountId, amount);
-        checkAmountOperation(amount);
-
-        Account account = operationRepository.findAccountById(accountId);
-        if (Objects.isNull(account))
-            return null;
-
-        BigDecimal oldAmount = account.getBalance();
-        account.setBalance(account.getBalance().subtract(amount));
-        operationRepository.createHistoryOperation(account, oldAmount, WITHDRAW);
-        return account;
-    }
-
-    public List<AccountHistory> historyAccount(String accountId) {
+    public List<AccountHistory> historyAccount(String accountId) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - historyAccount with accountId{} ", accountId);
-        return operationRepository.getAccountHistory(accountId);
+        if (accountId !=null)
+            return operationRepository.getAccountHistory(accountId);
+        throw new AccountNotFoundException("");
     }
 
     public String printStatement() {
@@ -100,9 +75,38 @@ public class AccountOperationService {
         return operationRepository.printOperations();
     }
 
-    private void checkAmountOperation(BigDecimal amount) {
+    private Account depositOnAccount(String accountId,
+                                    BigDecimal amount) throws AccountNotFoundException {
+
+        LOGGER.info("AccountOperationService - depositOnAccount with accountId{}, amount{} ", accountId, amount);
+
+        Account account = operationRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        BigDecimal oldAmount = account.getBalance();
+        account.setBalance(account.getBalance().add(amount));
+        operationRepository.createHistoryOperation(account, oldAmount, DEPOSIT);
+        return account;
+
+    }
+
+    private Account withdrawalOnAccount(String accountId,
+                                       BigDecimal amount) throws AccountNotFoundException {
+
+        LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId{}, amount{} ", accountId, amount);
+
+        Account account = operationRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        BigDecimal oldAmount = account.getBalance();
+        account.setBalance(account.getBalance().subtract(amount));
+        operationRepository.createHistoryOperation(account, oldAmount, WITHDRAW);
+        return account;
+    }
+
+    private void checkAmountOperation(BigDecimal amount) throws IllegalParamException{
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("exception illegal amount");
+            throw new IllegalParamException("exception illegal amount");
         }
     }
 }

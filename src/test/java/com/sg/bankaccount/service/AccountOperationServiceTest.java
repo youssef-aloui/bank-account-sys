@@ -1,7 +1,9 @@
 package com.sg.bankaccount.service;
 
+import com.sg.bankaccount.exception.AccountNotFoundException;
+import com.sg.bankaccount.exception.IllegalParamException;
 import com.sg.bankaccount.model.Account;
-import com.sg.bankaccount.repository.AccountOperationRepository;
+import com.sg.bankaccount.repository.AccountOperationRepositoryImp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -14,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Optional;
 
 import static com.sg.bankaccount.model.OperationType.DEPOSIT;
 import static com.sg.bankaccount.model.OperationType.WITHDRAW;
@@ -25,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class AccountOperationServiceTest {
 
     @Mock
-    private AccountOperationRepository operationRepository;
+    private AccountOperationRepositoryImp operationRepository;
 
     private AccountOperationService operationService;
 
@@ -38,7 +41,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test
-    public void testMakeOperationOnAccount_deposit_ok() {
+    public void testMakeOperationOnAccount_deposit_ok() throws AccountNotFoundException, IllegalParamException{
 
         // Given
         String accountId = "234678";
@@ -51,20 +54,20 @@ public class AccountOperationServiceTest {
                 .currency(Currency.getInstance("EUR"))
                 .build();
 
-        when(operationRepository.findAccountById(accountId))
-                .thenReturn(expected);
+        when(operationRepository.findById(accountId))
+                .thenReturn(Optional.of(expected));
 
         // When
         Account account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, DEPOSIT.getOperationId());
 
         // Then
-        verify(operationRepository).findAccountById(accountId);
+        verify(operationRepository).findById(accountId);
         verify(operationRepository).createHistoryOperation(account, amount, DEPOSIT);
         Assert.assertEquals(account.getBalance(), new BigDecimal(3000));
     }
 
     @Test
-    public void testMakeOperationOnAccount_Withdrawal_ok() {
+    public void testMakeOperationOnAccount_Withdrawal_ok() throws AccountNotFoundException, IllegalParamException   {
 
         // Given
         String accountId = "234678";
@@ -77,62 +80,63 @@ public class AccountOperationServiceTest {
                 .currency(Currency.getInstance("EUR"))
                 .build();
 
-        when(operationRepository.findAccountById(accountId))
-                .thenReturn(expected);
+        when(operationRepository.findById(accountId))
+                .thenReturn(Optional.of(expected));
 
         // When
         Account account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, WITHDRAW.getOperationId());
 
         // Then
-        verify(operationRepository).findAccountById(accountId);
+        verify(operationRepository).findById(accountId);
         verify(operationRepository).createHistoryOperation(account, amount, WITHDRAW);
         Assert.assertEquals(account.getBalance(), BigDecimal.ZERO);
     }
 
-    @Test
-    public void testDepositOnAccount_Ko_Account_isNull() {
+    @Test(expected = AccountNotFoundException.class)
+    public void testDepositOnAccount_Ko_Account_isNull() throws AccountNotFoundException, IllegalParamException{
 
         // Given
-        when(operationRepository.findAccountById(""))
-                .thenReturn(null);
+        when(operationRepository.findById(""))
+                .thenReturn(Optional.empty());
 
         // When
         operationService.makeOperationOnAccount("", BigDecimal.valueOf(1000), DEPOSIT.getOperationId());
 
         // Then
-        verify(operationRepository).findAccountById("");
+        verify(operationRepository).findById("");
     }
 
-    @Test
-    public void testWithdrawalOnAccount_Ko_Account_isNull() {
+    @Test(expected = AccountNotFoundException.class)
+    public void testWithdrawalOnAccount_Ko_Account_isNull() throws AccountNotFoundException, IllegalParamException {
 
         // Given
-        when(operationRepository.findAccountById(""))
-                .thenReturn(null);
+        when(operationRepository.findById(""))
+                .thenReturn(Optional.empty());
 
         // When
         operationService.makeOperationOnAccount("", BigDecimal.valueOf(1000), WITHDRAW.getOperationId());
 
         // Then
-        verify(operationRepository).findAccountById("");
+        verify(operationRepository).findById("");
+
     }
 
     @Test
-    public void testMakeOperationOnAccount_Without_OperationType() {
+    public void testMakeOperationOnAccount_Without_OperationType() throws AccountNotFoundException, IllegalParamException {
 
         // Given
-        when(operationRepository.findAccountById(""))
-                .thenReturn(null);
+        when(operationRepository.findById("234678"))
+                .thenReturn(Optional.empty());
 
         // When
-        operationService.makeOperationOnAccount("", BigDecimal.valueOf(1000), 0);
+        operationService.makeOperationOnAccount("234678", BigDecimal.valueOf(1000), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testCheckAmountOperation_Ko() {
+    @Test(expected = IllegalParamException.class)
+    public void testCheckAmountOperation_Ko() throws AccountNotFoundException, IllegalParamException{
 
-        operationService.makeOperationOnAccount("", BigDecimal.valueOf(-1000), WITHDRAW.getOperationId());
-        exception.expect(IllegalArgumentException.class);
+        operationService.makeOperationOnAccount("234678", BigDecimal.valueOf(-1000), WITHDRAW.getOperationId());
+        exception.expect(IllegalParamException.class);
         exception.expectMessage("exception illegal amount");
     }
 }
