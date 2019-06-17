@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Currency;
+import java.util.Optional;
 
 import static com.sg.bankaccount.model.OperationType.DEPOSIT;
 import static org.mockito.Mockito.when;
@@ -111,7 +112,7 @@ public class AccountControllerTest {
 
         when(operationService
                 .makeOperationOnAccount(expected.getIdAccount(), BigDecimal.valueOf(1500), DEPOSIT.getOperationId()))
-                .thenReturn(expected);
+                .thenReturn(Optional.of(expected));
 
         // WHEN & THEN
         mockMvc.perform(MockMvcRequestBuilders.post(URL.concat("/operation/1/234678"))

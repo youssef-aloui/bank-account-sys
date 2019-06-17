@@ -58,12 +58,12 @@ public class AccountOperationServiceTest {
                 .thenReturn(Optional.of(expected));
 
         // When
-        Account account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, DEPOSIT.getOperationId());
+        Optional<Account> account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, DEPOSIT.getOperationId());
 
         // Then
         verify(operationRepository).findById(accountId);
-        verify(operationRepository).createHistoryOperation(account, amount, DEPOSIT);
-        Assert.assertEquals(account.getBalance(), new BigDecimal(3000));
+        verify(operationRepository).createHistoryOperation(account.get(), amount, DEPOSIT);
+        Assert.assertEquals(account.get().getBalance(), new BigDecimal(3000));
     }
 
     @Test
@@ -84,12 +84,12 @@ public class AccountOperationServiceTest {
                 .thenReturn(Optional.of(expected));
 
         // When
-        Account account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, WITHDRAW.getOperationId());
+        Optional<Account> account = operationService.makeOperationOnAccount(expected.getIdAccount(), amount, WITHDRAW.getOperationId());
 
         // Then
         verify(operationRepository).findById(accountId);
-        verify(operationRepository).createHistoryOperation(account, amount, WITHDRAW);
-        Assert.assertEquals(account.getBalance(), BigDecimal.ZERO);
+        verify(operationRepository).createHistoryOperation(account.get(), amount, WITHDRAW);
+        Assert.assertEquals(account.get().getBalance(), BigDecimal.ZERO);
     }
 
     @Test(expected = AccountNotFoundException.class)

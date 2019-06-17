@@ -2,6 +2,7 @@ package com.sg.bankaccount.api.controller;
 
 import com.sg.bankaccount.exception.AccountNotFoundException;
 import com.sg.bankaccount.exception.InvalidAmountException;
+import com.sg.bankaccount.exception.OperationTypeNotFoundException;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.model.AccountHistory;
 import com.sg.bankaccount.service.AccountOperationService;
@@ -42,14 +43,16 @@ public class AccountController {
 
     @PostMapping(value = "/operation/{operationId}/{accountId}", produces = "application/json")
     public Account operationOnAccount(@PathVariable(value = "operationId") int operationId,
-                                             @PathVariable(value = "accountId") String accountId,
-                                             @RequestParam(value = "amount") BigDecimal amount)
-            throws AccountNotFoundException, InvalidAmountException {
+                                      @PathVariable(value = "accountId") String accountId,
+                                      @RequestParam(value = "amount") BigDecimal amount) throws AccountNotFoundException,
+                                                                                                InvalidAmountException,
+                                                                                                OperationTypeNotFoundException {
 
         LOGGER.info("AccountController - operationOnAccount with operationId{}, accountId{}, amount{}",
                 operationId, accountId, amount);
 
-        return operationService.makeOperationOnAccount(accountId, amount, operationId);
+        return operationService.makeOperationOnAccount(accountId, amount, operationId)
+                .orElseThrow(() -> new OperationTypeNotFoundException(String.valueOf(operationId)));
     }
 
     @GetMapping(value = "/history/{accountId}", produces = "application/json")

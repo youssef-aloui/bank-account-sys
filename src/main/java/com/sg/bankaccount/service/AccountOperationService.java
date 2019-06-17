@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static com.sg.bankaccount.model.OperationType.DEPOSIT;
 import static com.sg.bankaccount.model.OperationType.WITHDRAW;
@@ -43,9 +44,9 @@ public class AccountOperationService {
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
-    public Account makeOperationOnAccount(String accountId,
-                                          BigDecimal amount,
-                                          int operationId) throws AccountNotFoundException, InvalidAmountException {
+    public Optional<Account> makeOperationOnAccount(String accountId,
+                                                   BigDecimal amount,
+                                                   int operationId) throws AccountNotFoundException, InvalidAmountException {
 
         LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ",
                 accountId, amount, operationId);
@@ -58,7 +59,7 @@ public class AccountOperationService {
         else if (WITHDRAW.getOperationId() == operationId)
             return withdrawalOnAccount(accountId, amount);
 
-        return null;
+        return Optional.empty();
     }
 
     public List<AccountHistory> historyAccount(String accountId) throws AccountNotFoundException {
@@ -75,7 +76,7 @@ public class AccountOperationService {
         return operationRepository.printOperations();
     }
 
-    private Account depositOnAccount(String accountId,
+    private Optional<Account> depositOnAccount(String accountId,
                                     BigDecimal amount) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - depositOnAccount with accountId{}, amount{} ", accountId, amount);
@@ -86,11 +87,12 @@ public class AccountOperationService {
         BigDecimal oldAmount = account.getBalance();
         account.setBalance(account.getBalance().add(amount));
         operationRepository.createHistoryOperation(account, oldAmount, DEPOSIT);
-        return account;
+
+        return Optional.of(account);
 
     }
 
-    private Account withdrawalOnAccount(String accountId,
+    private Optional<Account> withdrawalOnAccount(String accountId,
                                        BigDecimal amount) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId{}, amount{} ", accountId, amount);
@@ -101,10 +103,10 @@ public class AccountOperationService {
         BigDecimal oldAmount = account.getBalance();
         account.setBalance(account.getBalance().subtract(amount));
         operationRepository.createHistoryOperation(account, oldAmount, WITHDRAW);
-        return account;
+        return Optional.of(account);
     }
 
-    private void checkAmountOperation(BigDecimal amount) throws InvalidAmountException {
+    private void checkAmountOperation(BigDecimal amount) throws InvalidAmountException, NumberFormatException {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException(amount.toString());
         }
