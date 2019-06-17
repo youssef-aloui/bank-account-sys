@@ -1,7 +1,7 @@
 package com.sg.bankaccount.service;
 
 import com.sg.bankaccount.exception.AccountNotFoundException;
-import com.sg.bankaccount.exception.IllegalParamException;
+import com.sg.bankaccount.exception.InvalidAmountException;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.repository.AccountOperationRepositoryImp;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test
-    public void testMakeOperationOnAccount_deposit_ok() throws AccountNotFoundException, IllegalParamException{
+    public void testMakeOperationOnAccount_deposit_ok() throws AccountNotFoundException, InvalidAmountException {
 
         // Given
         String accountId = "234678";
@@ -67,7 +67,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test
-    public void testMakeOperationOnAccount_Withdrawal_ok() throws AccountNotFoundException, IllegalParamException   {
+    public void testMakeOperationOnAccount_Withdrawal_ok() throws AccountNotFoundException, InvalidAmountException {
 
         // Given
         String accountId = "234678";
@@ -93,7 +93,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test(expected = AccountNotFoundException.class)
-    public void testDepositOnAccount_Ko_Account_isNull() throws AccountNotFoundException, IllegalParamException{
+    public void testDepositOnAccount_Ko_Account_isNull() throws AccountNotFoundException, InvalidAmountException {
 
         // Given
         when(operationRepository.findById(""))
@@ -107,7 +107,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test(expected = AccountNotFoundException.class)
-    public void testWithdrawalOnAccount_Ko_Account_isNull() throws AccountNotFoundException, IllegalParamException {
+    public void testWithdrawalOnAccount_Ko_Account_isNull() throws AccountNotFoundException, InvalidAmountException {
 
         // Given
         when(operationRepository.findById(""))
@@ -122,7 +122,7 @@ public class AccountOperationServiceTest {
     }
 
     @Test
-    public void testMakeOperationOnAccount_Without_OperationType() throws AccountNotFoundException, IllegalParamException {
+    public void testMakeOperationOnAccount_Without_OperationType() throws AccountNotFoundException, InvalidAmountException {
 
         // Given
         when(operationRepository.findById("234678"))
@@ -132,11 +132,11 @@ public class AccountOperationServiceTest {
         operationService.makeOperationOnAccount("234678", BigDecimal.valueOf(1000), 0);
     }
 
-    @Test(expected = IllegalParamException.class)
-    public void testCheckAmountOperation_Ko() throws AccountNotFoundException, IllegalParamException{
+    @Test(expected = InvalidAmountException.class)
+    public void testCheckAmountOperation_Ko() throws AccountNotFoundException, InvalidAmountException {
 
         operationService.makeOperationOnAccount("234678", BigDecimal.valueOf(-1000), WITHDRAW.getOperationId());
-        exception.expect(IllegalParamException.class);
+        exception.expect(InvalidAmountException.class);
         exception.expectMessage("exception illegal amount");
     }
 }

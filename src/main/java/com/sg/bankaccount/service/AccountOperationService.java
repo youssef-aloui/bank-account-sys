@@ -1,7 +1,7 @@
 package com.sg.bankaccount.service;
 
 import com.sg.bankaccount.exception.AccountNotFoundException;
-import com.sg.bankaccount.exception.IllegalParamException;
+import com.sg.bankaccount.exception.InvalidAmountException;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.model.AccountHistory;
 import com.sg.bankaccount.repository.AccountOperationRepository;
@@ -45,7 +45,7 @@ public class AccountOperationService {
 
     public Account makeOperationOnAccount(String accountId,
                                           BigDecimal amount,
-                                          int operationId) throws AccountNotFoundException, IllegalParamException {
+                                          int operationId) throws AccountNotFoundException, InvalidAmountException {
 
         LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ",
                 accountId, amount, operationId);
@@ -64,7 +64,7 @@ public class AccountOperationService {
     public List<AccountHistory> historyAccount(String accountId) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - historyAccount with accountId{} ", accountId);
-        if (accountId !=null)
+        if (accountId != null)
             return operationRepository.getAccountHistory(accountId);
         throw new AccountNotFoundException("");
     }
@@ -104,9 +104,9 @@ public class AccountOperationService {
         return account;
     }
 
-    private void checkAmountOperation(BigDecimal amount) throws IllegalParamException{
+    private void checkAmountOperation(BigDecimal amount) throws InvalidAmountException {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalParamException("exception illegal amount");
+            throw new InvalidAmountException(amount.toString());
         }
     }
 }
