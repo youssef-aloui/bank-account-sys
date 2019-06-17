@@ -31,21 +31,21 @@ public class AccountOperationService {
 
     public List<Account> getAllAccount() {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - getAllAccount");
         return operationRepository.findAllAccount();
     }
 
-    public Account findAccountById(String id) {
+    public Account findAccountById(String accountId) {
 
-        LOGGER.info("");
-        return operationRepository.findAccountById(id);
+        LOGGER.info("AccountOperationService - findAccountById with accountId{}", accountId);
+        return operationRepository.findAccountById(accountId);
     }
 
     public Account makeOperationOnAccount(String accountId,
                                           BigDecimal amount,
                                           int operationId) {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ", accountId, amount, operationId);
         if (DEPOSIT.getOperationId() == operationId)
             return depositOnAccount(accountId, amount);
 
@@ -58,7 +58,7 @@ public class AccountOperationService {
     public Account depositOnAccount(String accountId,
                                     BigDecimal amount) {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - depositOnAccount with accountId{}, amount{} ", accountId, amount);
         checkAmountOperation(amount);
 
         Account account = operationRepository.findAccountById(accountId);
@@ -75,7 +75,7 @@ public class AccountOperationService {
     public Account withdrawalOnAccount(String accountId,
                                        BigDecimal amount) {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId{}, amount{} ", accountId, amount);
         checkAmountOperation(amount);
 
         Account account = operationRepository.findAccountById(accountId);
@@ -90,13 +90,13 @@ public class AccountOperationService {
 
     public List<AccountHistory> historyAccount(String accountId) {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - historyAccount with accountId{} ", accountId);
         return operationRepository.getAccountHistory(accountId);
     }
 
     public String printStatement() {
 
-        LOGGER.info("");
+        LOGGER.info("AccountOperationService - historyAccount ");
         return operationRepository.printOperations();
     }
 

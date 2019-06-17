@@ -4,6 +4,10 @@ import com.sg.bankaccount.Utils.PrintMessageUtilities;
 import com.sg.bankaccount.model.Account;
 import com.sg.bankaccount.model.AccountHistory;
 import com.sg.bankaccount.model.OperationType;
+import com.sg.bankaccount.service.AccountOperationService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,9 +18,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class AccountOperationRepository {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(AccountOperationService.class);
     private List<Account> accounts;
     private List<AccountHistory> transactionHistory;
 
@@ -41,16 +47,23 @@ public class AccountOperationRepository {
     }
 
     public Account findAccountById(String idAccount) {
+
+        LOGGER.info("AccountOperationRepository - findAccountById with accountId{}", idAccount);
         return accounts.stream().filter(account -> idAccount.equals(account.getIdAccount()))
                 .findAny()
                 .orElse(null);
     }
 
     public List<Account> findAllAccount() {
+
+        LOGGER.info("AccountOperationRepository - findAllAccount ");
         return accounts;
     }
 
     public void createHistoryOperation(Account account, BigDecimal oldBalance, OperationType operationType ) {
+
+        LOGGER.info("AccountOperationRepository - createHistoryOperation  with account{}, oldBalance{}, operationType{} ",
+                account, oldBalance, operationType);
 
         AccountHistory accountHistory = AccountHistory.builder()
                 .idHistory(UUID.randomUUID().toString().replaceAll("-", ""))
@@ -65,11 +78,15 @@ public class AccountOperationRepository {
     }
 
     public List<AccountHistory> getAccountHistory(String accountId) {
+
+        LOGGER.info("AccountOperationRepository - getAccountHistory with accountId{}", accountId);
         return transactionHistory.stream().filter(hist -> accountId.equals(hist.getAccount().getIdAccount()))
                 .collect(Collectors.toList());
     }
 
     public String printOperations() {
+
+        LOGGER.info("AccountOperationRepository - printOperations ");
         final StringBuilder operationsHistory = new StringBuilder();
         operationsHistory.append(PrintMessageUtilities.HEADER);
         operationsHistory.append(PrintMessageUtilities.lineSeparator());
