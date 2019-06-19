@@ -45,9 +45,14 @@ public class AccountOperationRepositoryImp implements AccountOperationRepository
 
     }
 
+    public AccountOperationRepositoryImp(List<Account> accounts) {
+        this.accounts = accounts;
+        transactionHistory = new ArrayList<>();
+    }
+
     public Optional<Account> findById(String idAccount) {
 
-        LOGGER.info("AccountOperationRepositoryImp - findById with accountId{}", idAccount);
+        LOGGER.info("AccountOperationRepositoryImp - findById with accountId {}", idAccount);
 
         return accounts.stream().filter(account -> idAccount.equals(account.getIdAccount()))
                 .findFirst();
@@ -62,7 +67,7 @@ public class AccountOperationRepositoryImp implements AccountOperationRepository
 
     public void createHistoryOperation(Account account, BigDecimal oldBalance, OperationType operationType ) {
 
-        LOGGER.info("AccountOperationRepositoryImp - createHistoryOperation  with account{}, oldBalance{}, operationType{} ",
+        LOGGER.info("AccountOperationRepositoryImp - createHistoryOperation  with account {}, oldBalance {}, operationType {} ",
                 account, oldBalance, operationType);
 
         AccountHistory accountHistory = AccountHistory.builder()
@@ -79,7 +84,7 @@ public class AccountOperationRepositoryImp implements AccountOperationRepository
 
     public List<AccountHistory> getAccountHistory(String accountId) {
 
-        LOGGER.info("AccountOperationRepositoryImp - getAccountHistory with accountId{}", accountId);
+        LOGGER.info("AccountOperationRepositoryImp - getAccountHistory with accountId {}", accountId);
         return transactionHistory.stream().filter(hist -> accountId.equals(hist.getAccount().getIdAccount()))
                 .collect(Collectors.toList());
     }

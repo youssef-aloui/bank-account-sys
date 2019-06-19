@@ -48,7 +48,7 @@ public class AccountOperationService {
                                                    BigDecimal amount,
                                                    int operationId) throws AccountNotFoundException, InvalidAmountException {
 
-        LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId{}, amount{}, operationId{} ",
+        LOGGER.info("AccountOperationService - makeOperationOnAccount with accountId {}, amount {}, operationId {} ",
                 accountId, amount, operationId);
 
         checkAmountOperation(amount);
@@ -64,7 +64,7 @@ public class AccountOperationService {
 
     public List<AccountHistory> historyAccount(String accountId) throws AccountNotFoundException {
 
-        LOGGER.info("AccountOperationService - historyAccount with accountId{} ", accountId);
+        LOGGER.info("AccountOperationService - historyAccount with accountId {} ", accountId);
         if (accountId != null)
             return operationRepository.getAccountHistory(accountId);
         throw new AccountNotFoundException("");
@@ -79,7 +79,7 @@ public class AccountOperationService {
     private Optional<Account> depositOnAccount(String accountId,
                                     BigDecimal amount) throws AccountNotFoundException {
 
-        LOGGER.info("AccountOperationService - depositOnAccount with accountId{}, amount{} ", accountId, amount);
+        LOGGER.info("AccountOperationService - depositOnAccount with accountId {}, amount {} ", accountId, amount);
 
         Account account = operationRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
@@ -95,7 +95,7 @@ public class AccountOperationService {
     private Optional<Account> withdrawalOnAccount(String accountId,
                                        BigDecimal amount) throws AccountNotFoundException {
 
-        LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId{}, amount{} ", accountId, amount);
+        LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId {}, amount {} ", accountId, amount);
 
         Account account = operationRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));

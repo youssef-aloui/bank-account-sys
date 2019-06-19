@@ -36,7 +36,7 @@ public class AccountController {
     @GetMapping(value = "/{accountId}", produces = "application/json")
     public Account getAccount(@PathVariable(value = "accountId") String accountId) throws AccountNotFoundException {
 
-        LOGGER.info("AccountController - getAccount with accountId{} ", accountId);
+        LOGGER.info("AccountController - getAccount with accountId {} ", accountId);
 
         return operationService.findAccountById(accountId);
     }
@@ -48,7 +48,7 @@ public class AccountController {
                                                                                                 InvalidAmountException,
                                                                                                 OperationTypeNotFoundException {
 
-        LOGGER.info("AccountController - operationOnAccount with operationId{}, accountId{}, amount{}",
+        LOGGER.info("AccountController - operationOnAccount with operationId {}, accountId {}, amount {}",
                 operationId, accountId, amount);
 
         return operationService.makeOperationOnAccount(accountId, amount, operationId)
@@ -58,7 +58,7 @@ public class AccountController {
     @GetMapping(value = "/history/{accountId}", produces = "application/json")
     public List<AccountHistory> getAccountHistory(@PathVariable(value = "accountId") String accountId) throws AccountNotFoundException {
 
-        LOGGER.info("AccountController - getAccountHistory with accountId{} ", accountId);
+        LOGGER.info("AccountController - getAccountHistory with accountId {} ", accountId);
 
         return operationService.historyAccount(accountId);
     }
