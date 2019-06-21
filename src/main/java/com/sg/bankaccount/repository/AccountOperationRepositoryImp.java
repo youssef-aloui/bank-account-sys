@@ -96,14 +96,13 @@ public class AccountOperationRepositoryImp implements AccountOperationRepository
         operationsHistory.append(PrintMessageUtilities.HEADER);
         operationsHistory.append(PrintMessageUtilities.lineSeparator());
 
-
-        for (AccountHistory accountHistory : this.transactionHistory) {
+        transactionHistory.stream().forEach(accountHistory -> {
             operationsHistory.append(accountHistory.getDate()).append(PrintMessageUtilities.SEPARATOR);
             operationsHistory.append(accountHistory.getOperationType()).append(PrintMessageUtilities.SEPARATOR);
             operationsHistory.append(accountHistory.getOldBalance()).append(PrintMessageUtilities.SEPARATOR);
             operationsHistory.append(accountHistory.getNewBalance());
             operationsHistory.append(PrintMessageUtilities.lineSeparator());
-        }
+        });
 
         return operationsHistory.toString();
     }

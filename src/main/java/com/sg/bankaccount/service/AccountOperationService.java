@@ -77,7 +77,7 @@ public class AccountOperationService {
     }
 
     private Optional<Account> depositOnAccount(String accountId,
-                                    BigDecimal amount) throws AccountNotFoundException {
+                                               BigDecimal amount) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - depositOnAccount with accountId {}, amount {} ", accountId, amount);
 
@@ -93,7 +93,7 @@ public class AccountOperationService {
     }
 
     private Optional<Account> withdrawalOnAccount(String accountId,
-                                       BigDecimal amount) throws AccountNotFoundException {
+                                                  BigDecimal amount) throws AccountNotFoundException {
 
         LOGGER.info("AccountOperationService - withdrawalOnAccount with accountId {}, amount {} ", accountId, amount);
 
